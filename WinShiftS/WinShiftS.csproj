@@ -35,7 +35,7 @@
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
-    <!-- <ApplicationIcon>mama.ico</ApplicationIcon> -->
+    <ApplicationIcon>sc.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -50,7 +50,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <!-- <Content Include="mama.ico" /> -->
+    <Content Include="sc.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

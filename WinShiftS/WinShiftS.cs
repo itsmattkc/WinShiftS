@@ -6,6 +6,7 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading;
+using System.Reflection;
 
 namespace WinShiftS
 {
@@ -47,7 +48,7 @@ namespace WinShiftS
 
             systray_icon = new NotifyIcon()
             {
-                Icon = SystemIcons.Exclamation,
+                Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location),
                 ContextMenu = new ContextMenu(new MenuItem[]{
                     new MenuItem("Exit", Exit)
                 }),
