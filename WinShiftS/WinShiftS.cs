@@ -25,6 +25,10 @@ namespace WinShiftS
 
         private Bitmap full_shot;
 
+        private NotifyIcon systray_icon;
+
+        FormClosingEventHandler close_handler;
+
         public WinShiftS()
         {
             // Registers Win+Shift+S
@@ -39,14 +43,36 @@ namespace WinShiftS
             this.MouseMove += new MouseEventHandler(this.UserMouseMove);
             this.MouseUp += new MouseEventHandler(this.UserMouseRelease);
             this.VisibleChanged += new EventHandler(this.CleanUpImage);
-            this.FormClosing += new FormClosingEventHandler(this.OverrideClose);
+
+            close_handler = new FormClosingEventHandler(this.OverrideClose);
+            this.FormClosing += close_handler;
 
             this.Cursor = Cursors.Cross;
+
+            systray_icon = new NotifyIcon()
+            {
+                Icon = SystemIcons.Exclamation,
+                ContextMenu = new ContextMenu(new MenuItem[]{
+                    new MenuItem("Exit", Exit)
+                }),
+                Visible = true
+            };
+            ShowNotification("Win+Shift+S enabled");
         }
 
         ~WinShiftS()
         {
             UnregisterHotKey(this.Handle, 0);
+        }
+
+        private void Exit(object sender, EventArgs e)
+        {
+            // Ensure system tray icon is hidden before we close
+            systray_icon.Visible = false;
+
+            // Allow form to close and exit application
+            this.FormClosing -= close_handler;
+            Application.Exit();
         }
 
         private void OverrideClose(object sender, FormClosingEventArgs e)
@@ -130,9 +156,13 @@ namespace WinShiftS
             if (dragging)
             {
                 drag_end = e.Location;
-
                 UpdateChanged();
             }
+        }
+
+        private void ShowNotification(string text)
+        {
+            systray_icon.ShowBalloonTip(1000, "Win+Shift+S", text, ToolTipIcon.Info);
         }
 
         private void UserMouseRelease(object sender, System.Windows.Forms.MouseEventArgs e)
@@ -147,9 +177,7 @@ namespace WinShiftS
 
                     Hide();
 
-                    NotifyIcon icon = new NotifyIcon();
-                    icon.Icon = SystemIcons.Exclamation;
-                    icon.ShowBalloonTip(1000, "Win+Shift+S", "Screenshot copied to clipboard", ToolTipIcon.Error);
+                    ShowNotification("Screenshot copied to clipboard");
                 }
 
                 dragging = false;
