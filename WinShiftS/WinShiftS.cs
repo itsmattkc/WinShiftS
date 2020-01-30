@@ -17,7 +17,7 @@ namespace WinShiftS
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
-        private bool dragging = false;
+        private bool dragging;
         private Point drag_start;
         private Point drag_end;
 
@@ -26,8 +26,6 @@ namespace WinShiftS
         private Bitmap full_shot;
 
         private NotifyIcon systray_icon;
-
-        FormClosingEventHandler close_handler;
 
         public WinShiftS()
         {
@@ -43,9 +41,7 @@ namespace WinShiftS
             this.MouseMove += new MouseEventHandler(this.UserMouseMove);
             this.MouseUp += new MouseEventHandler(this.UserMouseRelease);
             this.VisibleChanged += new EventHandler(this.CleanUpImage);
-
-            close_handler = new FormClosingEventHandler(this.OverrideClose);
-            this.FormClosing += close_handler;
+            this.FormClosing += new FormClosingEventHandler(this.OverrideClose);
 
             this.Cursor = Cursors.Cross;
 
@@ -70,17 +66,18 @@ namespace WinShiftS
             // Ensure system tray icon is hidden before we close
             systray_icon.Visible = false;
 
-            // Allow form to close and exit application
-            this.FormClosing -= close_handler;
             Application.Exit();
         }
 
         private void OverrideClose(object sender, FormClosingEventArgs e)
         {
-            // Closing the form will delete it and unregister the hotkey which is probably undesirable behavior,
-            // instead we override it with hiding
-            e.Cancel = true;
-            Hide();
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                // Closing the form will delete it and unregister the hotkey, which in the case of UserClosing (usually
+                // Alt+F4) is probably not the user's intention. We allow all other closes however.
+                e.Cancel = true;
+                this.Hide();
+            }
         }
 
         private void UpdateChanged()
@@ -138,7 +135,7 @@ namespace WinShiftS
         {
             if (keyData == (Keys.Escape))
             {
-                Hide();
+                this.Hide();
                 return true;
             }
             return base.ProcessCmdKey(ref msg, keyData);
@@ -175,7 +172,7 @@ namespace WinShiftS
 
                     Clipboard.SetImage(cropped);
 
-                    Hide();
+                    this.Hide();
 
                     ShowNotification("Screenshot copied to clipboard");
                 }
@@ -207,9 +204,14 @@ namespace WinShiftS
                 graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, full_shot.Size);
             }
 
-            Show();
-            Location = new Point(screenLeft, screenTop);
-            Size = full_shot.Size;
+            this.Show();
+            this.Location = new Point(screenLeft, screenTop);
+            this.Size = full_shot.Size;
+
+            // Set some default valuse
+            dragging = false;
+            drag_start = new Point(0, 0);
+            drag_end = new Point(0, 0);
         }
 
         protected override void WndProc(ref Message m)
