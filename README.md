@@ -1,5 +1,7 @@
 # Win+Shift+S
 
+Download: [Latest Release](https://github.com/itsmattkc/WinShiftS/releases/download/continuous/WinShiftS.exe)
+
 Lightweight screenshotting tool that imitates the functionality of Win+Shift+S in Windows 10 1703+ but in much earlier versions of Windows.
 
 After opening this tool, pressing Win+Shift+S will allow you to make a rectangular selection of the screen and the resulting snippet of screenshot will be copied to the clipboard ready for pasting anywhere.
